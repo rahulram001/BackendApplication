@@ -17,20 +17,42 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/register")
+    @PostMapping("/seeker/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> request) {
+        System.out.println("Register request: " + request); // Debug log
+        String firstName = request.getOrDefault("firstName", "").trim();
+        String lastName = request.getOrDefault("lastName", "").trim();
+        String email = request.getOrDefault("email", "").trim();
+        String password = request.getOrDefault("password", "").trim();
+        String phone = request.getOrDefault("phone", "").trim();
+        String location = request.getOrDefault("location", "").trim();
+        String experience = request.getOrDefault("experience", "").trim();
+        String skills = request.getOrDefault("skills", "").trim();
+        String resume = request.getOrDefault("resume", "").trim();
+
+        if (firstName.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", "First name, email, and password are required."
+            ));
+        }
+
         return ResponseEntity.ok(userService.register(
-                request.getOrDefault("name", ""),
-                request.getOrDefault("email", ""),
-                request.getOrDefault("password", ""),
-                request.getOrDefault("role", "SEEKER")));
+            firstName, lastName, email, password, phone, location, experience, skills, resume
+        ));
     }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> request) {
-        return ResponseEntity.ok(userService.login(
-                request.getOrDefault("email", ""),
-                request.getOrDefault("password", "")));
+        String email = request.getOrDefault("email", "").trim();
+        String password = request.getOrDefault("password", "").trim();
+
+        if (email.isEmpty() || password.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", "Email and password are required."
+            ));
+        }
+
+        return ResponseEntity.ok(userService.login(email, password));
     }
 
     @GetMapping("/{id}")
@@ -43,3 +65,4 @@ public class UserController {
         return ResponseEntity.ok(userService.updateProfile(id, update));
     }
 }
+

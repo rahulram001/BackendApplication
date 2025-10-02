@@ -9,13 +9,10 @@ import com.example.jobportal.repository.ApplicationRepository;
 import com.example.jobportal.repository.JobRepository;
 import com.example.jobportal.repository.UserRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 public class ApplicationService {
-
     private final ApplicationRepository applicationRepository;
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
