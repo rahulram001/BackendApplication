@@ -4,9 +4,11 @@ import com.example.jobportal.dto.UserDTO;
 import com.example.jobportal.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
 
+
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -18,26 +20,31 @@ public class UserController {
     }
 
     @PostMapping("/seeker/register")
-    public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> request) {
-        System.out.println("Register request: " + request); // Debug log
-        String firstName = request.getOrDefault("firstName", "").trim();
-        String lastName = request.getOrDefault("lastName", "").trim();
-        String email = request.getOrDefault("email", "").trim();
-        String password = request.getOrDefault("password", "").trim();
-        String phone = request.getOrDefault("phone", "").trim();
-        String location = request.getOrDefault("location", "").trim();
-        String experience = request.getOrDefault("experience", "").trim();
-        String skills = request.getOrDefault("skills", "").trim();
-        String resume = request.getOrDefault("resume", "").trim();
-
-        if (firstName.isEmpty() || email.isEmpty() || password.isEmpty()) {
+    public ResponseEntity<Map<String, Object>> register(
+        @RequestParam("firstName") String firstName,
+        @RequestParam("lastName") String lastName,
+        @RequestParam("email") String email,
+        @RequestParam("password") String password,
+        @RequestParam("phone") String phone,
+        @RequestParam("location") String location,
+        @RequestParam("experience") String experience,
+        @RequestParam("skills") String skills,
+        @RequestParam(value = "resume", required = false) MultipartFile resume
+    ) {
+        System.out.println("Register request: firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + ", phone=" + phone + ", location=" + location + ", experience=" + experience + ", skills=" + skills + ", resume=" + (resume != null ? resume.getOriginalFilename() : "null"));
+        if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of(
-                "error", "First name, email, and password are required."
+                "error", "First name, last name, email, and password are required."
             ));
         }
 
+        String resumePath = "";
+        if (resume != null && !resume.isEmpty()) {
+            resumePath = resume.getOriginalFilename(); // Placeholder, replace with actual storage logic
+        }
+
         return ResponseEntity.ok(userService.register(
-            firstName, lastName, email, password, phone, location, experience, skills, resume
+            firstName, lastName, email, password, phone, location, experience, skills, resumePath
         ));
     }
 
@@ -56,13 +63,24 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getProfile(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getProfile(id));
+    public ResponseEntity<UserDTO> getProfile(@PathVariable(name = "id") Long id) {
+        UserDTO dto = userService.getProfile(id);
+        // Debug: print all fields to verify
+        System.out.println("Profile loaded: name=" + dto.getName() +
+            ", email=" + dto.getEmail() +
+            ", phone=" + dto.getPhone() +
+            ", location=" + dto.getLocation() +
+            ", experience=" + dto.getExperience() +
+            ", skills=" + dto.getSkills() +
+            ", resume=" + dto.getResume());
+        return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateProfile(@PathVariable Long id, @RequestBody UserDTO update) {
+    public ResponseEntity<UserDTO> updateProfile(@PathVariable(name = "id") Long id, @RequestBody UserDTO update) {
         return ResponseEntity.ok(userService.updateProfile(id, update));
     }
 }
+
+
 

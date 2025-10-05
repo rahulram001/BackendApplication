@@ -3,28 +3,33 @@ package com.example.jobportal.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "applications")
+@Table(name = "application")
 public class Application {
-
-    public enum Status {
-        APPLIED, REVIEWED, ACCEPTED, REJECTED
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "job_id")
     private Job job;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "seeker_id")
     private User seeker;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status = Status.APPLIED;
+    // Optionally add appliedDate, coverLetter, etc. if needed
+
+    public enum Status {
+        APPLIED,
+        UNDER_REVIEW,
+        INTERVIEW,
+        ACCEPTED,
+        REJECTED
+    }
 
     public Long getId() {
         return id;
@@ -32,6 +37,14 @@ public class Application {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public Job getJob() {
@@ -48,13 +61,5 @@ public class Application {
 
     public void setSeeker(User seeker) {
         this.seeker = seeker;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
     }
 }

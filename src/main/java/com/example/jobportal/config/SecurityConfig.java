@@ -25,8 +25,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/login", "/api/users/register", "/actuator/health").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users/login", "/api/users/seeker/register", "/actuator/health").permitAll()
+                        .requestMatchers("/api/admin/").hasRole("ADMIN")
                         .anyRequest().permitAll() // For now allow all; will restrict with JWT later
                 )
                 .httpBasic(Customizer.withDefaults());

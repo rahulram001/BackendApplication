@@ -1,24 +1,20 @@
 package com.example.jobportal.dto;
 
-import java.time.LocalDate;
-
 public class UserDTO {
     private Long id;
     private String name;
     private String email;
-    private String password;
-    private String role;
     private String phone;
     private String location;
     private String experience;
     private String skills;
-    private String status;
-    private LocalDate joinedDate;
-    private LocalDate lastActive;
-    private String company;
-    private String education;
-    private String summary;
     private String resume;
+    private String status;
+    private String summary;
+    private String education;
+    private String joinedDate;
+    private String role;
+    private String lastActive; // <-- Add this field if you want to show lastActive in frontend
 
     // Getters and setters
 
@@ -44,22 +40,6 @@ public class UserDTO {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 
     public String getPhone() {
@@ -94,44 +74,20 @@ public class UserDTO {
         this.skills = skills;
     }
 
+    public String getResume() {
+        return resume;
+    }
+
+    public void setResume(String resume) {
+        this.resume = resume;
+    }
+
     public String getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public LocalDate getJoinedDate() {
-        return joinedDate;
-    }
-
-    public void setJoinedDate(LocalDate joinedDate) {
-        this.joinedDate = joinedDate;
-    }
-
-    public LocalDate getLastActive() {
-        return lastActive;
-    }
-
-    public void setLastActive(LocalDate lastActive) {
-        this.lastActive = lastActive;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
-    public void setCompany(String company) {
-        this.company = company;
-    }
-
-    public String getEducation() {
-        return education;
-    }
-
-    public void setEducation(String education) {
-        this.education = education;
     }
 
     public String getSummary() {
@@ -142,11 +98,35 @@ public class UserDTO {
         this.summary = summary;
     }
 
-    public String getResume() {
-        return resume;
+    public String getEducation() {
+        return education;
     }
 
-    public void setResume(String resume) {
-        this.resume = resume;
+    public void setEducation(String education) {
+        this.education = education;
+    }
+
+    public String getJoinedDate() {
+        return joinedDate;
+    }
+
+    public void setJoinedDate(String joinedDate) {
+        this.joinedDate = joinedDate;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getLastActive() {
+        return lastActive;
+    }
+
+    public void setLastActive(String lastActive) {
+        this.lastActive = lastActive;
     }
 }

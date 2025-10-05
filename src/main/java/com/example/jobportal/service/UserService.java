@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -25,12 +26,28 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    private UserDTO toDto(User u) {
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::toDto)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    private UserDTO toDto(User user) {
         UserDTO dto = new UserDTO();
-        dto.setId(u.getId());
-        dto.setName(u.getName());
-        dto.setEmail(u.getEmail());
-        dto.setRole(u.getRole().name());
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
+        dto.setLocation(user.getLocation());
+        dto.setExperience(user.getExperience());
+        dto.setSkills(user.getSkills());
+        dto.setResume(user.getResume());
+        dto.setStatus(user.getStatus());
+        dto.setSummary(user.getSummary());
+        dto.setEducation(user.getEducation());
+        dto.setJoinedDate(user.getJoinedDate());
+        dto.setRole(user.getRole());
+        dto.setLastActive(user.getLastActive()); // <-- Map lastActive if present
         return dto;
     }
 
@@ -43,7 +60,7 @@ public class UserService {
         String location,
         String experience,
         String skills,
-        String resume // This should be a String (e.g., file URL or path)
+        String resume
     ) {
         logger.debug("Register called with email: {}, firstName: {}, lastName: {}, phone: {}, location: {}, experience: {}, skills: {}, resume: {}",
             email, firstName, lastName, phone, location, experience, skills, resume);
@@ -52,15 +69,29 @@ public class UserService {
             throw new CustomException("Email already in use", 400);
         });
 
+        // Defensive: check for null or empty for all required fields
+        if (firstName == null || firstName.trim().isEmpty() ||
+            lastName == null || lastName.trim().isEmpty() ||
+            email == null || email.trim().isEmpty() ||
+            password == null || password.trim().isEmpty() ||
+            phone == null || phone.trim().isEmpty() ||
+            location == null || location.trim().isEmpty() ||
+            experience == null || experience.trim().isEmpty() ||
+            skills == null || skills.trim().isEmpty()) {
+            throw new CustomException("All fields except resume are required and must not be blank.", 400);
+        }
+
         User u = new User();
         u.setName((firstName + " " + lastName).trim());
-        u.setEmail(email);
+        u.setEmail(email.trim());
         u.setPassword(passwordEncoder.encode(password));
-        u.setPhone(phone);
-        u.setLocation(location);
-        u.setExperience(experience);
-        u.setSkills(skills);
+        u.setPhone(phone.trim());
+        u.setLocation(location.trim());
+        u.setExperience(experience.trim());
+        u.setSkills(skills.trim());
         u.setResume(resume);
+        u.setStatus("ACTIVE");
+
         u = userRepository.save(u);
 
         return Map.of("message", "User registered successfully", "user", toDto(u));
@@ -94,11 +125,50 @@ public class UserService {
         if (update.getEmail() != null) {
             u.setEmail(update.getEmail());
         }
-        if (update.getRole() != null) {
-            u.setRole(User.Role.valueOf(update.getRole().toUpperCase()));
-        }
+
 
         u = userRepository.save(u);
         return toDto(u);
+    }
+
+    // MISSING: updateUserStatus (for admin to activate/deactivate/suspend users)
+    public UserDTO updateUserStatus(Long userId, String status) {
+        User u = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException("User not found", 404));
+        u.setStatus(status);
+        u = userRepository.save(u);
+        return toDto(u);
+    }
+
+    // MISSING: updateUserRole (for admin to change user role)
+    // REMOVE this method if you have removed role from User entity
+    // public UserDTO updateUserRole(Long userId, String role) {
+    //     User u = userRepository.findById(userId)
+    //             .orElseThrow(() -> new CustomException("User not found", 404));
+    //     u.setRole(User.Role.valueOf(role.toUpperCase()));
+    //     u = userRepository.save(u);
+    //     return toDto(u);
+    // }
+
+    // MISSING: deleteUser (for admin to delete a user)
+    public void deleteUser(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new CustomException("User not found", 404);
+        }
+        userRepository.deleteById(userId);
+    }
+
+    // MISSING: bulkUpdateUsers (for admin bulk actions)
+    public void bulkUpdateUsers(java.util.List<Long> userIds, String action) {
+        for (Long userId : userIds) {
+            if ("delete".equalsIgnoreCase(action)) {
+                deleteUser(userId);
+            } else if ("activate".equalsIgnoreCase(action)) {
+                updateUserStatus(userId, "ACTIVE");
+            } else if ("deactivate".equalsIgnoreCase(action)) {
+                updateUserStatus(userId, "INACTIVE");
+            }
+            // Add more actions as needed
+        }
     }
 }

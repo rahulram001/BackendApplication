@@ -6,10 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/jobs")
 public class JobController {
+
     private final JobService jobService;
 
     public JobController(JobService jobService) {
@@ -17,28 +19,60 @@ public class JobController {
     }
 
     @PostMapping
-    public ResponseEntity<JobDTO> createJob(@RequestBody JobDTO dto) {
-        return ResponseEntity.ok(jobService.createJob(dto));
+    public JobDTO createJob(@RequestBody JobDTO jobDTO) {
+        System.out.println("JobController: createJob called with title=" + jobDTO.getTitle() + ", company=" + jobDTO.getCompany());
+        // Print all fields for debugging
+        System.out.println("JobDTO: " +
+            "location=" + jobDTO.getLocation() +
+            ", type=" + jobDTO.getType() +
+            ", experience=" + jobDTO.getExperience() +
+            ", benefits=" + jobDTO.getBenefits() +
+            ", skills=" + jobDTO.getSkills() +
+            ", applicationDeadline=" + jobDTO.getApplicationDeadline() +
+            ", isRemote=" + jobDTO.getIsRemote() +
+            ", salary=" + jobDTO.getSalary() +
+            ", salaryRange=" + jobDTO.getSalaryRange());
+        return jobService.createJob(jobDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<JobDTO> updateJob(@PathVariable Long id, @RequestBody JobDTO dto) {
+    public ResponseEntity<JobDTO> updateJob(@PathVariable(name = "id") Long id, @RequestBody JobDTO dto) {
         return ResponseEntity.ok(jobService.updateJob(id, dto));
     }
 
-    @GetMapping
-    public ResponseEntity<List<JobDTO>> listJobs() {
-        return ResponseEntity.ok(jobService.listJobs());
+    @DeleteMapping("/{jobId}")
+    public ResponseEntity<?> deleteJob(@PathVariable Long jobId) {
+        System.out.println("Delete request for jobId: " + jobId);
+        try {
+            jobService.deleteJob(jobId);
+            System.out.println("Job deleted: " + jobId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to delete job: " + ex.getMessage()));
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteJob(@PathVariable Long id) {
-        jobService.deleteJob(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping
+    public List<JobDTO> listJobs() {
+        return jobService.listJobs();
     }
 
     @GetMapping("/search")
     public ResponseEntity<List<JobDTO>> searchJobs(@RequestParam String q) {
         return ResponseEntity.ok(jobService.searchJobs(q));
+    }
+
+    // Add this endpoint for dashboard statistics
+    @GetMapping("/stats/dashboard")
+    public ResponseEntity<java.util.Map<String, Object>> getDashboardStats() {
+        return ResponseEntity.ok(jobService.getDashboardStats());
+    }
+
+    // Example for endpoint using Long argument:
+    @GetMapping("/employer/{employerId}")
+    public ResponseEntity<List<JobDTO>> getJobsByEmployer(@PathVariable(name = "employerId") Long employerId) {
+        List<JobDTO> jobs = jobService.getJobsByEmployer(employerId);
+        return ResponseEntity.ok(jobs);
     }
 }

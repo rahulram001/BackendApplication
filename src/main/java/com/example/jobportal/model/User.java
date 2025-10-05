@@ -7,43 +7,24 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User {
-
-    public enum Role {
-        SEEKER, EMPLOYER, ADMIN
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;
-
-    @Column(nullable = false, unique = true)
     private String email;
-
-    @Column(nullable = false)
-    private String password;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role;
-
-    // New fields:
-    @Column(nullable = true)
     private String phone;
-
-    @Column(nullable = true)
     private String location;
-
-    @Column(nullable = true)
     private String experience;
-
-    @Column(length = 1000, nullable = true)
     private String skills;
-
     private String resume;
     private String status;
+    private String summary;
+    private String education;
+    private String joinedDate;
+    private String role;
+    private String password;
+    private String lastActive; // <-- Add this field if you want to track lastActive
 
     // existing relations...
     @OneToMany(mappedBy = "employer", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -64,12 +45,6 @@ public class User {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-
-    public Role getRole() { return role; }
-    public void setRole(Role role) { this.role = role; }
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
@@ -99,6 +74,49 @@ public class User {
         this.status = status;
     }
 
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
+    public String getEducation() {
+        return education;
+    }
+
+    public void setEducation(String education) {
+        this.education = education;
+    }
+
+    public String getJoinedDate() {
+        return joinedDate;
+    }
+
+    public void setJoinedDate(String joinedDate) {
+        this.joinedDate = joinedDate;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getLastActive() { return lastActive; }
+    public void setLastActive(String lastActive) { this.lastActive = lastActive; }
+
     // existing relation getters/setters...
     public List<Job> getJobs() { return jobs; }
     public void setJobs(List<Job> jobs) { this.jobs = jobs; }
@@ -108,4 +126,8 @@ public class User {
 
     public List<Resume> getResumes() { return resumes; }
     public void setResumes(List<Resume> resumes) { this.resumes = resumes; }
+
+    public User() {
+        this.status = "ACTIVE";
+    }
 }
